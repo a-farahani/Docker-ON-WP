@@ -88,7 +88,7 @@ services:
       - TZ=${TimeZone}
       - REDIS_REPLICATION=master
     volumes:
-      - ./volumes/redis/date:/var/lib/redis
+      - ./volumes/redis/data:/var/lib/redis
     networks:
       - litespeed
 
