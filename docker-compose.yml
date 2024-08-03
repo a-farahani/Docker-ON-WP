@@ -1,0 +1,98 @@
+services:
+
+  nginx:
+    image: nginx:stable
+    container_name: nginx
+    restart: always
+    environment:
+      - TZ=${TimeZone}
+    volumes:
+      - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+    networks:
+      - nginx
+    ports:
+      - 80:80
+      # - 443:433
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOGS_SZIE:-10m}"
+        max-file: "${LOGS_ROTATION:-3}"
+    depends_on:
+      - litespeed
+      - mariadb
+      - pma
+      - redis
+
+  litespeed:
+    image: litespeedtech/openlitespeed:${OLS_VERSION}-${PHP_VERSION}
+    container_name: litespeed
+    restart: always
+    environment:
+      - TZ=${TimeZone}
+    volumes:
+      - ./volumes/litespeed/admin-conf:/usr/local/lsws/admin/conf
+      - ./volumes/litespeed/conf:/usr/local/lsws/conf
+      - ./volumes/litespeed/logs:/usr/local/lsws/logs
+      - ./volumes/litespeed/sites:/var/www/vhosts
+    networks:
+      - litespeed
+      - nginx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOGS_SZIE:-10m}"
+        max-file: "${LOGS_ROTATION:-3}"
+
+  mariadb:
+    image: mariadb:11.4
+    container_name: mariadb
+    restart: always
+    command: ["--max-allowed-packet=512M"]
+    environment:
+      - TZ=${TimeZone}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    networks:
+      - mariadb
+      - litespeed
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOGS_SZIE:-10m}"
+        max-file: "${LOGS_ROTATION:-3}"
+  
+  pma:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: pma
+    restart: always
+    environment:
+      - TZ=${TimeZone}
+      - PMA_HOST=mariadb
+    networks:
+      - mariadb
+      - nginx
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "${LOGS_SZIE:-10m}"
+        max-file: "${LOGS_ROTATION:-3}"
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    environment:
+      - TZ=${TimeZone}
+      - REDIS_REPLICATION=master
+    volumes:
+      - ./volumes/redis/date:/var/lib/redis
+    networks:
+      - litespeed
+
+networks:
+  nginx:
+  litespeed:
+  mariadb:

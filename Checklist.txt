@@ -1,0 +1,62 @@
+# MinDevOps Channel
+
+Write the Docker Compose file:
+    Nginx
+    LiteSpeed
+    Mariadb
+    phpMyAdmin
+    Redis
+
+Set DNS
+
+Write the Nginx configuration:
+    Proxy pass:
+        WordPress (site1.com)
+        LiteSpeed dashboard (lsdash.site1.com)
+        phpMyAdmin (pma.site1.com)
+
+Configure LiteSpeed in its dashboard:
+    Remove all listeners, virtual hosts, and templates
+    Listeners:
+        Listener Name   HTTP
+        Port            80
+        Secure          No
+    Virtual Hosts:
+        Basic:
+            Virtual Host Name	site1
+            Virtual Host Root	/var/www/vhosts/site1
+            Config File	        /usr/local/lsws/conf/vhosts/site1.conf
+        General:
+            Document Root	$VH_ROOT/html
+            Domain Name	    site1.com
+            Domain Aliases	www.site1.com
+        External App:
+            LiteSpeed SAPI App:
+                Name	                            site1
+                Address	                            UDS://tmp/lshttpd/php.sock
+                Max Connections	                    60
+                Environment	                        PHP_LSAPI_CHILDREN=35
+                Initial Request Timeout (secs)	    60
+                Command	                            /usr/local/lsws/lsphp83/bin/lsphp
+        Script Handler:
+            Suffixes        php
+            Handler Type	LiteSpeed SAPI
+            Handler Name    [VHost Level]: site1
+        Rewrite:
+            Enable Rewrite	            Yes
+            Auto Load from .htaccess	Yes
+    Listener HTTP:
+        Virtual Host Mappings:
+            Virtual Host    site1
+            Domains         site1.com, www.site1.com
+
+Install WordPress.
+
+Remove default plugins (need to set correct permissions).
+
+Install the LiteSpeed Cache plugin.
+
+Configure Redis in the LiteSpeed Cache plugin.
+
+Are you ready to deploy this on a Linux server?? :)
+
