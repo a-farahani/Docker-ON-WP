@@ -37,6 +37,7 @@ Configure LiteSpeed in its dashboard:
                 Max Connections	                    60
                 Environment	                        PHP_LSAPI_CHILDREN=35
                 Initial Request Timeout (secs)	    60
+                Retry Timeout                       0
                 Command	                            /usr/local/lsws/lsphp83/bin/lsphp
         Script Handler:
             Suffixes        php
