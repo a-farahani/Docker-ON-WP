@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###########################
+## set variables
 DOMAIN=$1
 
 # Check if the variable is set
@@ -8,7 +8,6 @@ if [ -z "${DOMAIN}" ]; then
     echo "Error: REQUIRED_VAR is not set."
     exit 1
 fi
-###########################
 
 ## donwload wordpress
 wget -nc https://wordpress.org/latest.zip -O /tmp/wordpress.zip > /dev/null 2>&1
@@ -24,3 +23,6 @@ find ./volumes/litespeed/sites -type d -exec chmod 0770 {} \;
 
 ## config nginx
 sed -i "s@{{ DOMAIN }}@$DOMAIN@g" volumes/nginx/conf.d/default.conf
+
+## start services
+docker compose up -d
