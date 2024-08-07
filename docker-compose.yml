@@ -7,7 +7,7 @@ services:
     environment:
       - TZ=${TimeZone}
     volumes:
-      - ./volumes/nginx/conf.d:/etc/nginx/conf.d
+      - ./volumes/nginx/conf.d:/etc/nginx/conf.d:cached
     networks:
       - nginx
     ports:
@@ -33,7 +33,7 @@ services:
     volumes:
       - ./volumes/litespeed/admin-conf:/usr/local/lsws/admin/conf
       - ./volumes/litespeed/conf:/usr/local/lsws/conf
-      - ./volumes/litespeed/logs:/usr/local/lsws/logs
+      - ./volumes/litespeed/logs:/usr/local/lsws/logs:delegated
       - ./volumes/litespeed/sites:/var/www/vhosts
     networks:
       - litespeed
@@ -55,6 +55,8 @@ services:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - ./volumes/mariadb:/var/lib/mysql:delegated
     networks:
       - mariadb
       - litespeed
