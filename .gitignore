@@ -1,4 +1,5 @@
 .env
+volumes/litespeed/conf
 volumes/litespeed/logs
 volumes/litespeed/sites
 volumes/mariadb
