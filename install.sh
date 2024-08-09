@@ -29,3 +29,7 @@ sed -i "s@{{ DOMAIN }}@$DOMAIN@g" volumes/nginx/conf.d/default.conf
 
 ## start services
 docker compose up -d
+
+## config litespeed
+sed -i "s@secure                1@secure                0@g" volumes/litespeed/admin-conf/admin_config.conf
+docker restart litespeed
