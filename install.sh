@@ -9,6 +9,9 @@ if [ -z "${DOMAIN}" ]; then
     exit 1
 fi
 
+## install dependency
+apt install unzip -y
+
 ## donwload wordpress
 wget -nc https://wordpress.org/latest.zip -O /tmp/wordpress.zip > /dev/null 2>&1
 unzip -n /tmp/wordpress.zip -d /tmp > /dev/null
