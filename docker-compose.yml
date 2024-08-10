@@ -8,11 +8,12 @@ services:
       - TZ=${TimeZone}
     volumes:
       - ./volumes/nginx/conf.d:/etc/nginx/conf.d:cached
+      - /etc/letsencrypt:/etc/letsencrypt:cached
     networks:
       - nginx
     ports:
       - 80:80
-      # - 443:433
+      - 443:443
     logging:
       driver: "json-file"
       options:
@@ -65,7 +66,7 @@ services:
       options:
         max-size: "${LOGS_SZIE:-10m}"
         max-file: "${LOGS_ROTATION:-3}"
-  
+
   pma:
     image: phpmyadmin/phpmyadmin:latest
     container_name: pma
