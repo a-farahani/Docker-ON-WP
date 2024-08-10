@@ -33,3 +33,4 @@ docker compose up -d
 ## config litespeed
 sed -i "s@secure                1@secure                0@g" volumes/litespeed/admin-conf/admin_config.conf
 docker restart litespeed
+docker compose run litespeed /usr/local/lsws/admin/misc/admpass.sh
