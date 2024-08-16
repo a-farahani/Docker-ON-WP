@@ -8,6 +8,8 @@ services:
       - TZ=${TimeZone}
     volumes:
       - ./volumes/nginx/conf.d:/etc/nginx/conf.d:cached
+      - ./volumes/nginx/dhparam:/etc/nginx/dhparam:cached
+      - ./volumes/nginx/pass:/etc/nginx/pass:cached
       - /etc/letsencrypt:/etc/letsencrypt:cached
     networks:
       - nginx

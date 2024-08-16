@@ -1,4 +1,6 @@
 .env
 volumes/litespeed
+volumes/nginx/dhparam
+volumes/nginx/pass
 volumes/mariadb
 volumes/redis
