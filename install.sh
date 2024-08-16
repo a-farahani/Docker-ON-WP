@@ -22,23 +22,24 @@ if [ -z "${DOMAIN}" ]; then
 fi
 
 ## Install dependency
+echo "#########################"
 echo "Installing dependecies..."
 apt install unzip apache2-utils -y
 
-echo "#########################"
 echo
 
 ## Donwload wordpress
+echo "#########################"
 echo "Downloading wordpress..."
 wget -nc https://wordpress.org/latest.zip -O /tmp/wordpress.zip > /dev/null 2>&1
 unzip -n /tmp/wordpress.zip -d /tmp > /dev/null
 mkdir -p ./volumes/litespeed/sites/$DOMAIN/html
 cp -ru /tmp/wordpress/* ./volumes/litespeed/sites/$DOMAIN/html/ > /dev/null
 
-echo "#########################"
 echo
 
 ## Config nginx
+echo "#########################"
 echo "Config nginx"
 sed -i "s@{{ DOMAIN }}@$DOMAIN@g" volumes/nginx/conf.d/default.conf
 
@@ -56,27 +57,27 @@ htpasswd -c volumes/nginx/pass/.lsdash lsDashuserName
 echo "Enter password for pma web"
 htpasswd -c volumes/nginx/pass/.pma pMauserName
 
-echo "#########################"
 echo
 
 ## Start services
+echo "#########################"
 echo "Starting services..."
 docker compose up -d
 
-echo "#########################"
 echo
 
 ## Set permissions
+echo "#########################"
 echo "Setiing permissions"
 chown 1000:1000 -R ./volumes/nginx
 chown nobody:1000 -R ./volumes/litespeed/sites
 find ./volumes/litespeed/sites -type f -exec chmod 0660 {} \;
 find ./volumes/litespeed/sites -type d -exec chmod 0770 {} \;
 
-echo "#########################"
 echo
 
 ## Config litespeed
+echo "#########################"
 echo "Config litespeed"
 sed -i "s@secure                1@secure                0@g" volumes/litespeed/admin-conf/admin_config.conf
 docker restart litespeed
@@ -84,5 +85,4 @@ docker restart litespeed
 echo "Enter username & password for litespeed"
 docker compose run litespeed /usr/local/lsws/admin/misc/admpass.sh
 
-echo "#########################"
 echo
