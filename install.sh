@@ -21,6 +21,20 @@ if [ -z "${DOMAIN}" ]; then
     exit 1
 fi
 
+# Get the directory of the script
+SCRIPT_DIR="$(dirname "$0")"
+
+# Define the file path relative to the script's location
+FILE_PATH="$SCRIPT_DIR/.env"
+
+# Check if the file exists
+if [[ ! -f "$FILE_PATH" ]]; then
+    echo "Error: File $FILE_PATH does not exist."
+    exit 1
+fi
+
+#################################################################################
+
 ## Install dependency
 echo "#########################"
 echo "Installing dependecies..."
