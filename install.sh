@@ -54,7 +54,7 @@ echo
 
 ## Config nginx
 echo "#########################"
-echo "Config nginx"
+echo "Configuring nginx..."
 sed -i "s@{{ DOMAIN }}@$DOMAIN@g" volumes/nginx/conf.d/default.conf
 
 echo "Creating dhparams..."
@@ -82,7 +82,7 @@ echo
 
 ## Set permissions
 echo "#########################"
-echo "Setiing permissions"
+echo "Setting permissions"
 chown 1000:1000 -R ./volumes/nginx
 chown nobody:1000 -R ./volumes/litespeed/sites
 find ./volumes/litespeed/sites -type f -exec chmod 0660 {} \;
@@ -92,11 +92,11 @@ echo
 
 ## Config litespeed
 echo "#########################"
-echo "Config litespeed"
+echo "Configuring litespeed..."
 sed -i "s@secure                1@secure                0@g" volumes/litespeed/admin-conf/admin_config.conf
 docker restart litespeed
 
 echo "Enter username & password for litespeed"
-docker compose run litespeed /usr/local/lsws/admin/misc/admpass.sh
+docker exec -it litespeed /usr/local/lsws/admin/misc/admpass.sh
 
 echo
