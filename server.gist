@@ -1,0 +1,57 @@
+## update
+apt update
+apt upgrade -y
+
+## set hostname
+hostnamectl set-hostname yourHostname
+nano /etc/hosts
+
+## set timezone
+timedatectl
+timedatectl set-timezone yourTimezone
+
+## check dns
+cat /etc/resolv.conf
+
+## reboot
+reboot now
+
+## install pkgs
+apt install vim sudo bash-completion unzip apache2-utils
+# install docker (see documentation)
+
+## setup bash-completion
+source /etc/profile.d/bash_completion.sh
+
+## config history
+echo 'export HISTTIMEFORMAT="%F %T "' >> /etc/profile
+
+## add user
+adduser yourUsername
+usermod -aG sudo yourUsername
+usermod -aG docker yourUsername
+vim /etc/passwd # make nologin
+
+## login with key pair
+passwd root
+vim /root/.ssh/authorized_keys
+
+## config ssh
+# make PermitRootLogin prohibit-password
+vim /etc/ssh/sshd_config
+systemctl restart sshd
+
+## get ssl
+apt install certbot python3-certbot-dns-cloudflare
+vim /etc/letsencrypt/cloudflare.ini
+certbot -d "yourDomain" -d "*.yourDomain" --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini --preferred-challenges dns certonly --dns-cloudflare-propagation-seconds 60
+certbot renew --dry-run
+
+## run services
+git clone https://github.com/a-farahani/Docker-ON-WP.git; cd Docker-ON-WP/; git fetch origin initial; git checkout initial
+cp .env.sample .env
+vim .env
+./install.sh yourDomain
+
+## sshuttle
+# sshuttle --dns -NHDr yourUsername@yourServerIP yourServerIP/32 --ssh-cmd="ssh -i /path/to/privatekey"
