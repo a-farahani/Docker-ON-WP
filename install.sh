@@ -3,8 +3,7 @@
 ## Get the OS name and version
 OS_NAME=$(grep -oP '^ID=\K.*' /etc/os-release)
 OS_VERSION=$(grep -oP '^VERSION_ID=\K.*' /etc/os-release | tr -d '"')
-
-## Check if OS is Debian 12
+# Check if OS is Debian 12
 if [[ "$OS_NAME" == "debian" && "$OS_VERSION" == "12" ]]; then
     echo "Running script on Debian 12..."
 else
@@ -14,19 +13,17 @@ fi
 
 ## Set variables
 DOMAIN=$1
-
+IP=$2
 # Check if the variable is set
-if [ -z "${DOMAIN}" ]; then
+if [ -z "${DOMAIN}" ] || [ -z "${IP}" ]; then
     echo "Error: REQUIRED_VAR is not set."
     exit 1
 fi
 
-# Get the directory of the script
+## Get the directory of the script
 SCRIPT_DIR="$(dirname "$0")"
-
 # Define the file path relative to the script's location
 FILE_PATH="$SCRIPT_DIR/.env"
-
 # Check if the file exists
 if [[ ! -f "$FILE_PATH" ]]; then
     echo "Error: File $FILE_PATH does not exist."
@@ -56,6 +53,7 @@ echo
 echo "#########################"
 echo "Configuring nginx..."
 sed -i "s@{{ DOMAIN }}@$DOMAIN@g" volumes/nginx/conf.d/default.conf
+sed -i "s@{{ IP }}@$IP@g" volumes/nginx/conf.d/default.conf
 
 echo "Creating dhparams..."
 mkdir -p volumes/nginx/dhparam
