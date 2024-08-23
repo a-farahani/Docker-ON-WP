@@ -4,7 +4,9 @@ apt upgrade -y
 
 ## set hostname
 hostnamectl set-hostname yourHostname
-nano /etc/hosts
+cat >> /etc/letsencrypt/cloudflare.ini << EOF
+127.0.0.1   yourHostname
+EOF
 
 ## set timezone
 timedatectl
@@ -34,7 +36,11 @@ vim /etc/passwd # make nologin
 
 ## login with key pair
 passwd root
-vim /root/.ssh/authorized_keys
+mkdir -p /root/.ssh/
+touch /root/.ssh/authorized_keys
+cat >> /root/.ssh/authorized_keys << EOF
+YOUT_PUBLIC_KEY
+EOF
 
 ## config ssh
 # make PermitRootLogin prohibit-password
@@ -43,7 +49,11 @@ systemctl restart sshd
 
 ## get ssl
 apt install certbot python3-certbot-dns-cloudflare
-vim /etc/letsencrypt/cloudflare.ini
+
+cat >> /etc/letsencrypt/cloudflare.ini << EOF
+dns_cloudflare_api_token = YOUT_API_TOKEN
+EOF
+
 certbot -d "yourDomain" -d "*.yourDomain" --dns-cloudflare --dns-cloudflare-credentials /etc/letsencrypt/cloudflare.ini --preferred-challenges dns certonly --dns-cloudflare-propagation-seconds 60
 certbot renew --dry-run
 
