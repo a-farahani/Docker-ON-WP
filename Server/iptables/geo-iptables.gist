@@ -1,0 +1,56 @@
+apt -y install build-essential linux-headers-"$(uname -r)"
+apt -y install curl gzip tar perl xtables-addons-common xtables-addons-dkms libtext-csv-xs-perl libmoosex-types-netaddr-ip-perl libnet-cidr-lite-perl iptables-persistent
+
+systemctl daemon-reload
+systemctl enable iptables.service
+systemctl enable ip6tables.service
+systemctl enable netfilter-persistent.service
+systemctl enable cron.service
+
+sysctl -p > /dev/null 2>&1; init 1; init 3
+
+mkdir -p /usr/share/ipban/ && chmod a+rwx /usr/share/ipban/
+# iptables-save  > /usr/share/ipban/backup-rules-ipv4.txt
+# ip6tables-save > /usr/share/ipban/backup-rules-ipv6.txt
+
+mkdir -p /usr/share/xt_geoip/ && chmod a+rwx /usr/share/xt_geoip/
+
+depmod  -a
+modprobe -rq x_tables
+modprobe -fq x_tables
+modprobe -rq xt_geoip
+modprobe -fq xt_geoip
+
+cat > "/usr/share/ipban/download-build-dbip.sh" << EOF
+#!/bin/bash
+        dtmp="/usr/share/xt_geoip/tmp/"
+        rm -rf "\${dtmp}" && mkdir -p "\${dtmp}" && cd "\${dtmp}"
+        timestamp=\$(date "+%Y-%m")
+        curl -m 20 -fLO "https://download.db-ip.com/free/dbip-country-lite-\${timestamp}.csv.gz" &> /dev/null
+        curl -m 20 -fLO "https://mailfud.org/geoip-legacy/GeoIP-legacy.csv.gz" -O &> /dev/null
+        [[ "\$?" != 0 ]] && curl -m 20 -fLO "https://legacy-geoip-csv.ufficyo.com/Legacy-MaxMind-GeoIP-database.tar.gz" &> /dev/null
+        gzip -dfq *.gz
+        find . -name "*.tar" -exec tar xvf {} \;
+        find . -name "*.tar.gz" -exec tar xvzf {} \;
+        cat "\${dtmp}GeoIP-legacy.csv" | tr -d '"' | cut -d, -f1,2,5 > "\${dtmp}GeoIP-legacy-processed.csv"
+        rm "\${dtmp}GeoIP-legacy.csv"
+        cat *.csv > geoip.csv
+        sort -u geoip.csv -o "/usr/share/xt_geoip/dbip-country-lite.csv"
+        rm -rf "\${dtmp}"
+EOF
+chmod +x "/usr/share/ipban/download-build-dbip.sh"
+
+cat > "/usr/share/ipban/ipban-update.sh" << EOF
+#!/bin/bash
+        /usr/share/ipban/download-build-dbip.sh
+        cd /usr/share/xt_geoip/
+        [ -f /usr/libexec/xtables-addons/xt_geoip_build ] && /usr/libexec/xtables-addons/xt_geoip_build -s
+        [ -f /usr/lib/xtables-addons/xt_geoip_build ] && /usr/lib/xtables-addons/xt_geoip_build -D /usr/share/xt_geoip/
+        cd && rm -f /usr/share/xt_geoip/dbip-country-lite.csv
+        \$( sysctl -p > /dev/null 2>&1; init 1; init 3 )
+        echo
+EOF
+chmod +x "/usr/share/ipban/ipban-update.sh"
+bash /usr/share/ipban/ipban-update.sh
+
+echo "@hourly bash /usr/share/ipban/ipban-update.sh 2>/dev/null" | crontab -
